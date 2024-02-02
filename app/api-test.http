@@ -1,0 +1,9 @@
+GET http://192.168.0.117:3000/test/set-name HTTP/1.1
+###
+GET http://rspi.local:3000/test/set-user HTTP/1.1
+###
+GET http://rspi.local:3000/name/write/43391602570a03ef HTTP/1.1
+###
+GET http://rspi.local:3000/name/create/kasper HTTP/1.1
+###
+GET http://rspi.local:3000/name/get HTTP/1.1
