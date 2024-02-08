@@ -18,7 +18,7 @@ mqtt.on('message', async (topic, message) => {
     switch (topic) {
         case 'esp32/attendant':
             let nameId = message.toString()
-            let name = (await Name.findByPk(nameId))?.name
+            let name = (await Name.findByPk(nameId))
             if (!name) return
             const oldAttendance = await Attendance.findOne({  
                 where: {
@@ -36,9 +36,9 @@ mqtt.on('message', async (topic, message) => {
             })
             if (oldAttendance) return
 
-            Attendance.create({ name_id: nameId })
+            const attendance = await Attendance.create({ name_id: nameId })
             
-            const result = JSON.stringify({ name, id: nameId })
+            const result = JSON.stringify({ action:'attendant', data: attendance })
             server.server?.publish('attendance', result)
 
             senseHat('user_accepted');
@@ -50,7 +50,7 @@ mqtt.on('message', async (topic, message) => {
 
             await cardName?.update({ card_assigned: true });
 
-            const cardResult = JSON.stringify({ name: cardName?.name, card_assigned: cardName?.card_assigned })
+            const cardResult = JSON.stringify({ action: 'card/confirm', data: true })
             server.server?.publish('card/confirm', cardResult)
         break;
     }    
@@ -67,11 +67,11 @@ const attendance = new Elysia({prefix: '/attendance'})
             ws.subscribe('attendance')
             ws.subscribe('card/confirm')
 
+            // 1. Get all attendances
             Attendance.findAll().then(attendances => attendances.forEach(attendance => {
-                Name.findByPk(attendance.name_id).then(name => {
-                    const result = JSON.stringify(name)
-                    ws.send(result)
-                })
+                const result = JSON.stringify({ action:'attendant', data: attendance })
+                
+                ws.send(result)
             }))
         },
         close(ws){
@@ -85,12 +85,21 @@ const name = new Elysia({prefix: '/name'})
         return await Name.findAll()
     })
     .get('create/:name', async ({ params: { name }}) => {
+        // urldecode
+        name = decodeURIComponent(name)
         const newName = await Name.create({ name })
-        return { id: newName.id, name: newName.name}
+        return newName
     })
     .get('write/:uuid', async ({ params: { uuid }}) => {
         mqtt.publish('api/name/create', uuid)
         return true  
+    })
+    .get('remove/:nameId', async ({ params: { nameId }}) => {
+        // urldecode
+        nameId = decodeURIComponent(nameId)
+        const removeName = await Name.destroy({ where: {id: nameId} })
+        const removeAttendance = await Attendance.destroy({ where: {name_id: nameId}})
+        return removeName
     })
 
 const test = new Elysia({prefix: '/test'})
