@@ -3,7 +3,6 @@ import { onMounted, ref } from 'vue';
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
-auth.login('admin', 'admin')
 
 const username = ref('admin');
 const password = ref('admin');

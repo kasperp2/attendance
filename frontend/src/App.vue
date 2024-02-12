@@ -39,9 +39,10 @@ const themes = [
 
 <template>
   <div class="navbar bg-base-300 mb-4">
-    <div class="btn btn-ghost text-xl">Attendance</div>
+    <RouterLink class="btn btn-ghost text-xl" to="/">Attendance</RouterLink>
 
-    <div class="float-end">
+    <RouterLink class="btn btn-ghost text-xl" to="/names">Names</RouterLink>
+    <div class="absolute right-1">
       <div class="dropdown">
         <div tabindex="0" role="button" class="btn m-1">
           Theme
@@ -53,6 +54,7 @@ const themes = [
       </div>
 
       <div class="btn btn-ghost text-xl">User name</div>
+      
     </div>
   </div>
 

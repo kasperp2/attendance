@@ -26,17 +26,16 @@ function eraseCookie(name) {
   document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 }
 
-
-export const useAuthStore = defineStore('auth', async () => {
+export const useAuthStore = defineStore('auth', () => {
   const ip = 'http://192.168.0.117:3000'
   const user = ref(null)
 
-  if(getCookie('token')){
-    loginToken()
-  }
+  // if(getCookie('token')){
+  //   loginToken()
+  // }
 
   const loginToken = async () => {
-    const response = await fetch(`${ip}/login-token`, {
+    const response = await fetch(`${ip}/user/login-token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -49,7 +48,7 @@ export const useAuthStore = defineStore('auth', async () => {
   }
 
   const login = async (username, password) => {
-      const response = await fetch(`${ip}/login`, {
+      const response = await fetch(`${ip}/user/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
