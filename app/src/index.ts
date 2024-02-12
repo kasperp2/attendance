@@ -55,6 +55,58 @@ mqtt.on('message', async (topic, message) => {
         break;
     }    
 })
+
+const user = new Elysia({prefix: '/user'})
+    .post('/login', async ({ body, cookie: {token} }) => {
+        let user = await User.findOne({
+            where: {
+                [Op.and]: [
+                    { username: body.username },
+                    { password: body.password }
+                ]
+            }
+        })
+
+        if(!user){
+            return 'bitch'
+        }
+
+        user.token = Math.random().toString(36).substr(2)
+        user.save()
+
+        return user
+    }, {
+        body: t.Object({
+            username: t.String(),
+            password: t.String() 
+        })
+    })
+    .post('/login', async ({ body, cookie: {token} }) => {
+        let user = await User.findOne({
+            where: {
+                [Op.and]: [
+                    { username: body.username },
+                    { password: body.password }
+                ]
+            }
+        })
+
+        if(!user){
+            return 'bitch'
+        }
+
+        user.token = Math.random().toString(36).substr(2)
+        user.save()
+
+        return user
+    }, {
+        body: t.Object({
+            username: t.String(),
+            password: t.String() 
+        })
+    })
+
+
 const attendance = new Elysia({prefix: '/attendance'})
     .ws('/', {
         body: t.Object({
@@ -66,17 +118,18 @@ const attendance = new Elysia({prefix: '/attendance'})
         open(ws){
             ws.subscribe('attendance')
             ws.subscribe('card/confirm')
-
-            // 1. Get all attendances
-            Attendance.findAll().then(attendances => attendances.forEach(attendance => {
-                const result = JSON.stringify({ action:'attendant', data: attendance })
-                
-                ws.send(result)
-            }))
         },
         close(ws){
             ws.unsubscribe('attendance')
         }
+    })
+    .get('/get/:date', async ({ params: { date }}) => {
+        return await Attendance.findAll({ where: 
+            sequelize.where(
+                sequelize.fn('DATE', sequelize.col('createdAt')), 
+                date
+            )
+        })
     })
 
 
@@ -109,7 +162,7 @@ const test = new Elysia({prefix: '/test'})
         return true
     })
     .get('/set-user', async () => {
-        const jane = await User.create({ name: "Jane" });
+        const jane = await User.create({ username: "admin", password: "admin" });
         console.log(jane.id);
         return true
     })
@@ -160,6 +213,7 @@ const server = new Elysia({
         }
     })
     .use(cors({origin : /.*/}))
+    .use(user)
     .use(attendance)
     .use(name)
     .use(sense)

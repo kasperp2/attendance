@@ -1,5 +1,6 @@
-import {Model, Table, Column, HasMany, PrimaryKey, DataType, Default} from 'sequelize-typescript';
+import {Model, Table, Column, PrimaryKey, DataType, Default, ForeignKey, BelongsTo} from 'sequelize-typescript';
 import Attendance from './Attendance';
+import User from './User';
 
 @Table
 export default class Name extends Model {
@@ -9,10 +10,10 @@ export default class Name extends Model {
     public id: any
 
     @Column name!: string
-    @Column user_id!: string
+
+    @ForeignKey(() => User) @Column user_id!: number
+    @BelongsTo(() => User) user: User = new User()
+
     @Column group!: string
     @Column card_assigned!: boolean
-    
-    // @HasMany(() => Attendance) attendance: Attendance[] | undefined
-    
 }
