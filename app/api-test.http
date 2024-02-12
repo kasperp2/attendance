@@ -7,3 +7,11 @@ GET http://rspi.local:3000/name/write/43391602570a03ef HTTP/1.1
 GET http://rspi.local:3000/name/create/kasper HTTP/1.1
 ###
 GET http://rspi.local:3000/name/get HTTP/1.1
+###
+POST http://rspi.local:3000/user/login HTTP/1.1
+content-type: application/json 
+
+{
+    "username": "admin",
+    "password": "admin"
+}

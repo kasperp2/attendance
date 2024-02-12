@@ -1,9 +1,19 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import { XMarkIcon, CheckIcon } from '@heroicons/vue/24/solid'
+import { XMarkIcon, CheckIcon, ClockIcon } from '@heroicons/vue/24/solid'
 
-const ip = 'rspi.local:3000';
-// const ip = '10.0.0.53:3000';
+// const ip = 'rspi.local:3000';
+const ip = '192.168.0.117:3000';
+
+const today = ref();
+today.value = new Date().toISOString().slice(0, 10);
+
+const meetingTime = ref();
+meetingTime.value = localStorage.getItem("Meeting time") || ref();
+
+function timeChange() {
+  localStorage.setItem("Meeting time", meetingTime.value);
+}
 
 // connect to websocket
 const names = ref()
@@ -91,13 +101,19 @@ const speak = (text) => {
       </div>
     </div>
   </div>
-
-  <div class="collapse collapse-open bg-base-200 mt-4">
-    <input type="checkbox" /> 
+  
+  
+  <div class="rounded-box bg-base-200 mt-4"> 
     <div class="collapse-title text-xl font-medium">
-      Attendance
+      <div class="inline">
+        Attendance
+      </div>
+      <div class="inline flex space-x-5 float-end">
+        <input v-model="today" type="date" class="input input-bordered h-9 w-32 p-1 focus:outline-none focus-within:outline-none">
+        <input v-model="meetingTime" type="time" name="clock" @change="timeChange" class="input input-bordered h-9 w-24 pr-1 focus:outline-none focus-within:outline-none" />
+      </div>
     </div>
-    <div class="collapse-content overflow-x-auto">
+    <div class="rounded-box overflow-x-auto">
       <table class="table table-zebra bg-base-100">
         <thead class="bg-base-200">
           <tr>

@@ -1,8 +1,9 @@
-import {Model, Table, Column, PrimaryKey, DataType, Default} from 'sequelize-typescript';
-
+import {Model, Table, Column} from 'sequelize-typescript';
 
 @Table
 export default class User extends Model {
-    @Column name!: string;
+    @Column username!: string;
     @Column password!: string;
+    @Column token!: string;
+    @Column refreshToken!: string;
 }
