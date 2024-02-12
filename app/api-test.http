@@ -15,3 +15,10 @@ content-type: application/json
     "username": "admin",
     "password": "admin"
 }
+###
+POST http://rspi.local:3000/user/login-token HTTP/1.1
+content-type: application/json 
+
+{
+    "token": "phdsnzo91p"
+}

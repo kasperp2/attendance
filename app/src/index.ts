@@ -57,14 +57,9 @@ mqtt.on('message', async (topic, message) => {
 })
 
 const user = new Elysia({prefix: '/user'})
-    .post('/login', async ({ body, cookie: {token} }) => {
+    .post('/login', async ({ body }) => {
         let user = await User.findOne({
-            where: {
-                [Op.and]: [
-                    { username: body.username },
-                    { password: body.password }
-                ]
-            }
+            where: {username: body.username,password: body.password }
         })
 
         if(!user){
@@ -81,28 +76,17 @@ const user = new Elysia({prefix: '/user'})
             password: t.String() 
         })
     })
-    .post('/login', async ({ body, cookie: {token} }) => {
-        let user = await User.findOne({
-            where: {
-                [Op.and]: [
-                    { username: body.username },
-                    { password: body.password }
-                ]
-            }
-        })
+    .post('/login-token', async ({ body }) => {
+        let user = await User.findOne({where:{ token: body.token}})
 
         if(!user){
             return 'bitch'
         }
 
-        user.token = Math.random().toString(36).substr(2)
-        user.save()
-
         return user
     }, {
         body: t.Object({
-            username: t.String(),
-            password: t.String() 
+            token: t.String()
         })
     })
 

@@ -31,10 +31,12 @@ export const useAuthStore = defineStore('auth', async () => {
   const ip = 'http://192.168.0.117:3000'
   const user = ref(null)
 
+  if(getCookie('token')){
+    loginToken()
+  }
 
-
-  const tokenLogin = async () => {
-    const response = await fetch(`${ip}/token-login`, {
+  const loginToken = async () => {
+    const response = await fetch(`${ip}/login-token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -43,20 +45,22 @@ export const useAuthStore = defineStore('auth', async () => {
     }).then(res => res.json())
 
     setCookie('token', response.token)
-    user.value = response.user
+    user.value = response
   }
 
-  const login = async () => {
+  const login = async (username, password) => {
       const response = await fetch(`${ip}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ username: 'admin', password: 'admin' })
+        body: JSON.stringify({ username, password })
       }).then(res => res.json())
 
       setCookie('token', response.token)
       user.value = response.user
+
+      console.log(user);
   }
 
   return { user, login }
