@@ -8,17 +8,23 @@ GET http://rspi.local:3000/name/create/kasper HTTP/1.1
 ###
 GET http://rspi.local:3000/name/get HTTP/1.1
 ###
-POST http://rspi.local:3000/user/login HTTP/1.1
+POST http://rspi.local:3000/user/login/ HTTP/1.1
 content-type: application/json 
+# Set-Cookie: token=phdsnzo91p; Path=/; Expires=Wed, 21 Oct 2030 07:28:00 GMT; HttpOnly
 
 {
     "username": "admin",
     "password": "admin"
 }
 ###
-POST http://rspi.local:3000/user/login-token HTTP/1.1
-content-type: application/json 
+GET http://rspi.local:3000/user/login-token HTTP/1.1
+# content-type: application/json 
 
-{
-    "token": "phdsnzo91p"
-}
+# {
+#     "token": "phdsnzo91p"
+# }
+###
+GET http://rspi.local:3000/sign/kasper HTTP/1.1
+###
+GET http://rspi.local:3000/profile HTTP/1.1
+###

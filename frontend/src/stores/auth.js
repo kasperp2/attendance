@@ -1,66 +1,56 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-
-function setCookie(name,value,days) {
-  var expires = "";
-  if (days) {
-      var date = new Date();
-      date.setTime(date.getTime() + (days*24*60*60*1000));
-      expires = "; expires=" + date.toUTCString();
-  }
-  document.cookie = name + "=" + (value || "")  + expires + "; path=/";
-}
-
-function getCookie(name) {
-  var nameEQ = name + "=";
-  var ca = document.cookie.split(';');
-  for(var i=0;i < ca.length;i++) {
-      var c = ca[i];
-      while (c.charAt(0)==' ') c = c.substring(1,c.length);
-      if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-  }
-  return null;
-}
-
-function eraseCookie(name) {   
-  document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-}
+import router from '@/router'
 
 export const useAuthStore = defineStore('auth', () => {
-  const ip = 'http://192.168.0.117:3000'
+  const ip = import.meta.env.VITE_APP_API_URL
   const user = ref(null)
 
-  // if(getCookie('token')){
-  //   loginToken()
-  // }
-
   const loginToken = async () => {
-    const response = await fetch(`${ip}/user/login-token`, {
-      method: 'POST',
+    const response = await fetch(ip+'/user/login-token', {
+      method: 'GET',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ token: getCookie('token')})
-    }).then(res => res.json())
+    }).then(res => {
+        return res.json()
+    })
 
-    setCookie('token', response.token)
+    if (response.error) return false
     user.value = response
   }
 
   const login = async (username, password) => {
-      const response = await fetch(`${ip}/user/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, password })
-      }).then(res => res.json())
+    const response = await fetch(ip+'/user/login', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password })
+    }).then(res => {
+      return res.json()
+    })
 
-      setCookie('token', response.token)
-      user.value = response.user
+    if(response.error) return false
 
-      console.log(user);
+    user.value = response
+
+    router.push({ path: '/' })
   }
 
-  return { user, login }
+  const logout = async () => {
+    await fetch(ip+'/user/logout', {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    user.value = null
+
+    router.push({ path: '/login' })
+  }
+  return { user, login, loginToken, logout }
 })

@@ -7,9 +7,12 @@
     "db": "bun db/generate.ts"
   },
   "dependencies": {
+    "@elysiajs/cookie": "^0.8.0",
     "@elysiajs/cors": "^0.8.0",
+    "@elysiajs/jwt": "^0.8.0",
     "@types/node": "^20.11.17",
     "@types/validator": "^13.11.9",
+    "dotenv": "^16.4.4",
     "elysia": "latest",
     "mariadb": "^3.2.3",
     "mqtt": "^5.3.5",

@@ -15,4 +15,4 @@ app.use(router)
 app.mount('#app')
 
 
-useAuthStore()
+useAuthStore().loginToken()
