@@ -1,27 +1,21 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { XMarkIcon } from '@heroicons/vue/24/solid'
+import { useApiStore } from '@/stores/api'
 
-const ip = import.meta.env.VITE_APP_API_URL
+const api = useApiStore()
 
-const names = ref()
-names.value = []
-const newName = ref()
+const names = ref([])
+const newName = ref('')
 
-const cardWriteId = ref()
+const cardWriteId = ref('')
+const identifying = ref(false)
+const identifiedId = ref('')
 
 onMounted(async () => {
-  await fetch(ip+'/name/get', {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-    })
-    .then(response => response.json())
-    .then(data => names.value = data)
+  api.req('/name/get').then(data => names.value = data)
 
-  const socket = new WebSocket(import.meta.env.VITE_APP_WS_URL+'/attendance')
+  const socket = api.ws('/attendance')
   socket.onmessage = (event) => {
     const data = JSON.parse(event.data)
     switch (data.action) {
@@ -29,42 +23,32 @@ onMounted(async () => {
         names.value.find(n => n.id == cardWriteId.value).card_assigned = true
         cardWriteId.value = null
         break;
+
+      case 'card/identify':
+        identifying.value = false
+        identifiedId.value = data
+        break;
     }
   };
 })
 
 const createName = () => {
-  fetch(ip+'/name/create/' + newName.value, {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-    })
-  .then(response => response.json())
-	.then(data => names.value = [...names.value, data])
+  api.req('/name/create/' + newName.value).then(data => names.value = [...names.value, data])
 }
 
 const removeName = (nameId) => {
-  fetch(ip+'/name/remove/' + nameId, {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-    })
+  api.req('/name/remove/' + nameId)
   names.value = names.value.filter(n => n.id != nameId)
 }
 
 const writeName = (nameId) => {
   cardWriteId.value = nameId
-  fetch(ip+'/name/write/' + nameId, {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-    })
+  api.req('/name/write/' + nameId)
+}
+
+const identifyCard = () => {
+  api.req('/name/identify')
+
 }
 
 const nameToRemove = ref([])
@@ -75,6 +59,9 @@ const nameToRemove = ref([])
     <input type="text" class="input input-bordered join-item" name="name" placeholder="full name" v-model="newName" />
     <button @click="createName" class="btn btn-primary join-item">create</button>
   </div>
+
+
+  <button @click="identifyCard" class="btn btn-secondary float-end">Identify Card {{ identifiedId }}</button>
   
   <div class="collapse collapse-open bg-base-200 mt-4">
     <input type="checkbox" /> 

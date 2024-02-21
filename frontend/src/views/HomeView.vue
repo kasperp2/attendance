@@ -1,8 +1,9 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { XMarkIcon, CheckIcon, ClockIcon } from '@heroicons/vue/24/solid'
+import { useApiStore } from '@/stores/api'
 
-const ip = import.meta.env.VITE_APP_API_URL
+const api = useApiStore()
 
 const selectedDate = ref();
 selectedDate.value = new Date().toISOString().slice(0, 10);
@@ -32,41 +33,27 @@ function getTime(date) {
 
 async function dateChange() {
   updateMeetingTimeDate();
-  await fetch(ip+'/attendance/get/' + selectedDate.value, {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-    })
-  .then(response => response.json())
-  .then(data => names.value.forEach(n => {
-    let a = data.find(d => d.name_id == n.id)
-    if (!a) {
-      n.arrivedAt = null
-    }
-    else {
-      n.arrivedAt = a.createdAt
-    }
-  })
-  )
+
+  api.req('/attendance/get/' + selectedDate.value)
+    .then(data => names.value.forEach(n => {
+      let a = data.find(d => d.name_id == n.id)
+      if (!a) {
+        n.arrivedAt = null
+      }
+      else {
+        n.arrivedAt = a.createdAt
+      }
+    }))
 }
 
 // connect to websocket
 const names = ref()
 names.value = []
 
-onMounted(async () => {
-  await fetch(ip+'/name/get', {
-    method: 'GET',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json'
-    }})
-    .then(response => response.json())
-    .then(data => names.value = data)
+onMounted(() => {
+  api.req('/name/get').then(data => names.value = data)
 
-  const socket = new WebSocket(import.meta.env.VITE_APP_WS_URL+'/attendance')
+  const socket = api.ws('/attendance')
   socket.onmessage = (event) => {
     const data = JSON.parse(event.data)
     switch (data.action) {
