@@ -9,8 +9,8 @@ const names = ref([])
 const newName = ref('')
 
 const cardWriteId = ref('')
-const identifying = ref(false)
-const identifiedId = ref('')
+// const identifying = ref(false)
+// const identifiedId = ref('')
 
 onMounted(async () => {
   api.req('/name/get').then(data => names.value = data)
@@ -18,16 +18,17 @@ onMounted(async () => {
   const socket = api.ws('/attendance')
   socket.onmessage = (event) => {
     const data = JSON.parse(event.data)
+    console.log(data);
     switch (data.action) {
       case 'card/confirm':
         names.value.find(n => n.id == cardWriteId.value).card_assigned = true
         cardWriteId.value = null
         break;
 
-      case 'card/identify':
-        identifying.value = false
-        identifiedId.value = data
-        break;
+      // case 'card/identify':
+      //   identifying.value = false
+      //   identifiedId.value = data
+      //   break;
     }
   };
 })
@@ -46,10 +47,9 @@ const writeName = (nameId) => {
   api.req('/name/write/' + nameId)
 }
 
-const identifyCard = () => {
-  api.req('/name/identify')
-
-}
+// const identifyCard = () => {
+//   api.req('/name/identify')
+// }
 
 const nameToRemove = ref([])
 </script>
@@ -60,8 +60,9 @@ const nameToRemove = ref([])
     <button @click="createName" class="btn btn-primary join-item">create</button>
   </div>
 
-
-  <button @click="identifyCard" class="btn btn-secondary float-end">Identify Card {{ identifiedId }}</button>
+  <!--
+    <button @click="identifyCard" class="btn btn-secondary float-end">Identify Card {{ identifiedId }}</button>
+  -->
   
   <div class="collapse collapse-open bg-base-200 mt-4">
     <input type="checkbox" /> 

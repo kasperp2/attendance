@@ -45,16 +45,17 @@ mqtt.on('message', async (topic, message) => {
             await cardName?.update({ card_assigned: true });
 
             const cardResult = JSON.stringify({ action: 'card/confirm', data: true })
-            server.server?.publish('card/info/'  + cardName?.user_id, cardResult)
+            server.server?.publish('card/confirm', cardResult)
+            // server.server?.publish('card/info/'  + cardName?.user_id, cardResult)
         break;
 
-        case 'esp32/name/card/verify':
-            const verifyName = (await Name.findByPk(message.toString()))
+        // case 'esp32/name/card/verify':
+        //     const verifyName = (await Name.findByPk(message.toString()))
 
-            const identifyResult = JSON.stringify({ action: 'card/identify', data: verifyName?.id })
+        //     const identifyResult = JSON.stringify({ action: 'card/identify', data: verifyName?.id })
             
-            server.server?.publish('card/info/' + verifyName?.user_id , identifyResult)
-        break;
+        //     server.server?.publish('card/info/' + verifyName?.user_id , identifyResult)
+        // break;
     }    
 })
 
@@ -196,13 +197,13 @@ const server = new Elysia({
             Attendance.destroy({ where: {name_id: nameId}})
             return true
         })
-        .get('identify', async ({jwt, cookie: { auth }}) => {
-            const userId = await jwt.verify(auth.value)
-            if (!userId) return {error: 'Unauthorized'}
+        // .get('identify', async ({jwt, cookie: { auth }}) => {
+        //     const userId = await jwt.verify(auth.value)
+        //     if (!userId) return {error: 'Unauthorized'}
 
-            mqtt.publish('api/name/identify', 'identify')
-            return true
-        })
+        //     mqtt.publish('api/name/identify', 'identify')
+        //     return true
+        // })
     )
     .group('/user', (app) => app
         .post('/login', async ({ body, jwt, cookie: { auth } }) => {
